@@ -4,7 +4,7 @@ package models
 type User struct {
 	UUID              string             `json:"id,omitempty" bson:"_id" binding:"required,uuid"`
 	IsRepresentative  bool               `json:"is_representative,omitempty" bson:"is_representative,omitempty" binding:"required,boolean"`
-	TeamID            string             `json:"team_id" bson:"team_id" binding:"required"`
+	TeamID            string             `json:"team_id" bson:"team_id"`
 	Name              string             `json:"name,omitempty" bson:"name,omitempty" binding:"required"`
 	Gender            string             `json:"gender,omitempty" bson:"gender,omitempty" binding:"required,oneof=male female other"`
 	School            string             `json:"school,omitempty" bson:"school,omitempty" binding:"required"`
