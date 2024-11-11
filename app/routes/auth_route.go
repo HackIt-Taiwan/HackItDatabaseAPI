@@ -9,5 +9,5 @@ func StaffRoute(r *gin.RouterGroup) {
 	auth := r.Group("/staff")
 
 	auth.POST("/create/new", controllers.CreateNewStaff)
-	auth.GET("/getstaffs", controllers.GetStaffs)
+	auth.POST("/getstaffs", controllers.GetStaffs)
 }

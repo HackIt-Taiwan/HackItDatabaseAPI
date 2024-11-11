@@ -34,8 +34,19 @@ func GetStaffByAnything(staff models.GetStaff) ([]models.Staff, error) {
 	// Prepare an empty slice to hold the results
 	var staffList []models.Staff
 
-	// Use Find instead of FindOne to get multiple documents
-	cursor, err := database.GetCollection("staff").Find(context.Background(), staff)
+	// Create query using bson.D to handle dynamic filtering
+	query := bson.D{}
+
+	// Add conditions to the query dynamically based on provided fields
+	if staff.UUID != "" {
+		query = append(query, bson.E{Key: "_id", Value: staff.UUID})
+	}
+	if staff.RealName != "" {
+		query = append(query, bson.E{Key: "real_name", Value: staff.RealName})
+	}
+
+	// Use Find with the dynamically built query
+	cursor, err := database.GetCollection("staff").Find(context.Background(), query)
 	if err != nil {
 		return nil, err
 	}

@@ -65,11 +65,11 @@ func GetStaffs(c *gin.Context) {
 		return
 	}
 
-	staff, err := queries.GetStaffByAnything(staffRequest)
-	if err == nil {
-		utils.SimpleResponse(c, 400, "Email already been used", nil)
+	staffs, err := queries.GetStaffByAnything(staffRequest)
+	if err != nil {
+		utils.SimpleResponse(c, 500, "Internal server error or request error", nil)
 		return
 	}
 
-	utils.SimpleResponse(c, 200, "Successful get staffs", staff)
+	utils.SimpleResponse(c, 200, "Successful get staffs", staffs)
 }
