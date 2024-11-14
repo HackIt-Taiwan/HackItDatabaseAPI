@@ -21,10 +21,12 @@ func main() {
 	initialization.Init()
 
 	r := root.Group("/api/v" + os.Getenv("VERSION"))
+	r.Use(middleware.TokenAuthMiddleware())
 
 	utils.PrintAppBanner()
 
 	routes.StaffRoute(r)
+	routes.UserRoute(r)
 
 	if err := root.Run(); err != nil {
 		fmt.Printf("Server failed to start: %v\n", err)
