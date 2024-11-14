@@ -17,11 +17,6 @@ var MongoClient *mongo.Client
 
 // InitMongoDB Init MongoDB connection
 func InitMongoDB() {
-	err := godotenv.Load("template.env")
-	if err != nil {
-		log.Fatalf("Error loading .env file")
-	}
-
 	// Set connection options
 	clientOptions := options.Client().ApplyURI(os.Getenv("MONGO_URI"))
 
