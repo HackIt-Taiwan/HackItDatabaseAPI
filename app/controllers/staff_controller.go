@@ -5,6 +5,7 @@ import (
 
 	"github.com/HackIt-Taiwan/HackItDatabaseAPI/app/models"
 	"github.com/HackIt-Taiwan/HackItDatabaseAPI/app/queries"
+	"github.com/HackIt-Taiwan/HackItDatabaseAPI/pkg/encryption"
 	"github.com/HackIt-Taiwan/HackItDatabaseAPI/pkg/utils"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -18,6 +19,12 @@ func CreateNewStaff(c *gin.Context) {
 		return
 	}
 	staff.CreatedAt = time.Now()
+
+	if err := encryption.EncryptStructFields(&staff); err != nil {
+		utils.SimpleResponse(c, 400, "Error encryption your data", err.Error())
+		return
+	}
+
 	// Check if email already been used
 	_, err := queries.GetStaffQueueByEmail(staff.Email)
 	if err == nil {

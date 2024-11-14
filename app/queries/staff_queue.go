@@ -2,9 +2,11 @@ package queries
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/HackIt-Taiwan/HackItDatabaseAPI/app/models"
 	"github.com/HackIt-Taiwan/HackItDatabaseAPI/pkg/database"
+	"github.com/HackIt-Taiwan/HackItDatabaseAPI/pkg/encryption"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -37,14 +39,6 @@ func GetStaffByAnything(staff models.GetStaff) ([]models.Staff, error) {
 	// Create query using bson.D to handle dynamic filtering
 	query := bson.D{}
 
-	// Add conditions to the query dynamically based on provided fields
-	if staff.UUID != "" {
-		query = append(query, bson.E{Key: "_id", Value: staff.UUID})
-	}
-	if staff.RealName != "" {
-		query = append(query, bson.E{Key: "real_name", Value: staff.RealName})
-	}
-
 	// Use Find with the dynamically built query
 	cursor, err := database.GetCollection("staff").Find(context.Background(), query)
 	if err != nil {
@@ -57,6 +51,9 @@ func GetStaffByAnything(staff models.GetStaff) ([]models.Staff, error) {
 		var singleStaff models.Staff
 		if err := cursor.Decode(&singleStaff); err != nil {
 			return nil, err
+		}
+		if err := encryption.DecryptStructFields(&singleStaff); err != nil {
+			return []models.Staff{}, fmt.Errorf("error decrypt staffs data")
 		}
 		staffList = append(staffList, singleStaff)
 	}
