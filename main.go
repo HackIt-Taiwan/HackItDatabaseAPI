@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/HackIt-Taiwan/HackItDatabaseAPI/app/routes"
@@ -9,7 +10,7 @@ import (
 	"github.com/HackIt-Taiwan/HackItDatabaseAPI/pkg/middleware"
 	"github.com/HackIt-Taiwan/HackItDatabaseAPI/pkg/utils"
 	"github.com/gin-gonic/gin"
-	_ "github.com/joho/godotenv/autoload"
+	"github.com/joho/godotenv"
 )
 
 func main() {
@@ -30,5 +31,17 @@ func main() {
 
 	if err := root.Run(); err != nil {
 		fmt.Printf("Server failed to start: %v\n", err)
+	}
+}
+
+func init() {
+	if os.Getenv("GIN_MODE") == "" {
+		if err := godotenv.Load(); err != nil {
+			log.Fatal("Error loading .env file")
+		} else {
+			log.Fatal(".env file loaded")
+		}
+	} else {
+		log.Fatal("Environment variable GIN_MODE already set, skipping .env load")
 	}
 }
