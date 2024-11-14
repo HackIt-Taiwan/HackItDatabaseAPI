@@ -7,5 +7,5 @@ FROM alpine:latest
 WORKDIR /app
 COPY --from=build /app/server /server
 RUN chmod +x /server
-EXPOSE 5000
+EXPOSE 8080
 CMD ["/server"]
