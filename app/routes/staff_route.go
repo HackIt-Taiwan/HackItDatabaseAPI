@@ -8,6 +8,7 @@ import (
 func StaffRoute(r *gin.RouterGroup) {
 	auth := r.Group("/staff")
 
-	auth.POST("/create/new", controllers.CreateNewStaff)
 	auth.POST("/getstaffs", controllers.GetStaffs)
+	auth.POST("/create/new", controllers.CreateNewStaff)
+	auth.POST("/update/:id", controllers.UpdateStaff)
 }

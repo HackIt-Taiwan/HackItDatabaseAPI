@@ -2,6 +2,7 @@ package queries
 
 import (
 	"context"
+	"errors"
 
 	"github.com/HackIt-Taiwan/HackItDatabaseAPI/app/models"
 	"github.com/HackIt-Taiwan/HackItDatabaseAPI/pkg/database"
@@ -63,7 +64,27 @@ func GetuserByAnything(user models.GetUser) ([]models.User, error) {
 }
 
 // Create new user data
-func CreateuserQueue(user models.User) error {
+func CreateUserQueue(user models.User) error {
 	_, err := database.GetCollection("user").InsertOne(context.Background(), user)
 	return err
+}
+
+func UpdateUserQueue(user models.User) error {
+    // Define the filter
+    filter := bson.M{"_id": user.UUID}
+
+    // Wrap the struct in $set to update only the fields provided
+    update := bson.M{"$set": user}
+
+    // Perform the update
+    result, err := database.GetCollection("staff").UpdateOne(context.Background(), filter, update)
+    if err != nil {
+        return err
+    }
+
+    if result.MatchedCount == 0 {
+        return errors.New("no matching document found to update")
+    }
+
+    return nil
 }

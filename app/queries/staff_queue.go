@@ -2,6 +2,7 @@ package queries
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/HackIt-Taiwan/HackItDatabaseAPI/app/models"
@@ -70,4 +71,24 @@ func GetStaffByAnything(staff models.GetStaff) ([]models.Staff, error) {
 func CreateStaffQueue(staff models.Staff) error {
 	_, err := database.GetCollection("staff").InsertOne(context.Background(), staff)
 	return err
+}
+
+func UpdateStaffQueue(uuid string, staff models.Staff) error {
+    // Define the filter
+    filter := bson.M{"_id": uuid}
+
+    // Wrap the struct in $set to update only the fields provided
+    update := bson.M{"$set": staff}
+
+    // Perform the update
+    result, err := database.GetCollection("staff").UpdateOne(context.Background(), filter, update)
+    if err != nil {
+        return err
+    }
+
+    if result.MatchedCount == 0 {
+        return errors.New("no matching document found to update")
+    }
+
+    return nil
 }

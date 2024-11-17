@@ -21,6 +21,10 @@ func init() {
 }
 
 func encryptAES256(plaintext string) (string, error) {
+	if strings.HasPrefix(plaintext, "AES256:") {
+		return "", fmt.Errorf("String already encrypted")
+	}
+
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return "", err
@@ -84,6 +88,9 @@ func EncryptStructFields(data interface{}) error {
 				value := v.Field(i).String()
 				encryptedValue, err := encryptAES256(value)
 				if err != nil {
+					if err.Error() == "String already encrypted" { // Fallback for updating.
+						continue
+					}
 					return err
 				}
 				v.Field(i).SetString(encryptedValue)
@@ -120,3 +127,4 @@ func DecryptStructFields(data interface{}) error {
 	}
 	return nil
 }
+
