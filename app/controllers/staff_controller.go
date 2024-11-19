@@ -1,8 +1,6 @@
 package controllers
 
 import (
-	"reflect"
-	"strings"
 	"time"
 
 	"github.com/HackIt-Taiwan/HackItDatabaseAPI/app/models"
@@ -92,7 +90,7 @@ func UpdateStaff(c *gin.Context) {
 		return
 	}
 
-	var updatedStaffRequest map[string]interface{}
+	var updatedStaffRequest models.UpdateStaff
 
 	if err := c.ShouldBindJSON(&updatedStaffRequest); err != nil {
 		utils.SimpleResponse(c, 400, "Invalid request", err.Error())
@@ -101,57 +99,19 @@ func UpdateStaff(c *gin.Context) {
 
 	currentStaff, err := queries.GetStaffQueueById(UUID)
 	if err == mongo.ErrNoDocuments {
-		utils.SimpleResponse(c, 500, "Staff not found", err.Error())
+		utils.SimpleResponse(c, 400, "Staff not found", err.Error())
 		return
 	} else if err != nil {
 		utils.SimpleResponse(c, 500, "Internal server error while checking id", err.Error())
 		return
 	}
 
-	staffValue := reflect.ValueOf(&currentStaff).Elem() // Ensure the struct is addressable
-	staffType := staffValue.Type()
-
-	for key, value := range updatedStaffRequest {
-		field := staffValue.FieldByNameFunc(func(fieldName string) bool {
-			normalizedFieldName := strings.ReplaceAll(fieldName, "_", "")
-			normalizedKey := strings.ReplaceAll(key, "_", "")
-			return strings.EqualFold(normalizedFieldName, normalizedKey)
-		})
-
-		if field.IsValid() && field.CanSet() {
-			fieldInfo, _ := staffType.FieldByNameFunc(func(fieldName string) bool {
-				return strings.EqualFold(fieldName, key)
-			})
-
-			// Check if the field is marked as encrypted
-			isEncrypted := fieldInfo.Tag.Get("encryption") == "true"
-
-			if isEncrypted {
-				if _, ok := value.(string); !ok {
-					utils.SimpleResponse(c, 400, "Invalid type for encrypted field: "+key, nil)
-					return
-				}
-
-				// Directly set the value (encryption will happen later)
-				field.Set(reflect.ValueOf(value))
-			} else {
-				newValue := reflect.ValueOf(value)
-				if newValue.Type().ConvertibleTo(field.Type()) {
-					field.Set(newValue.Convert(field.Type()))
-				} else {
-					utils.SimpleResponse(c, 400, "Invalid type for field: "+key, nil)
-					return
-				}
-			}
-		}
-	}
-
-	if err := encryption.EncryptStructFields(&currentStaff); err != nil {
+	if err := encryption.EncryptStructFields(&updatedStaffRequest); err != nil {
 		utils.SimpleResponse(c, 400, "Error encryption your data", err.Error())
 		return
 	}
 
-	err = queries.UpdateStaffQueue(UUID, currentStaff)
+	err = queries.UpdateStaffQueue(UUID, updatedStaffRequest)
 	if err != nil {
 		utils.SimpleResponse(c, 500, "Interal server error when updating staff", err.Error())
 		return

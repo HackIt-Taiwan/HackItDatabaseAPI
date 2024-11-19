@@ -4,10 +4,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"reflect"
+	"strings"
 
 	"github.com/HackIt-Taiwan/HackItDatabaseAPI/app/models"
 	"github.com/HackIt-Taiwan/HackItDatabaseAPI/pkg/database"
 	"github.com/HackIt-Taiwan/HackItDatabaseAPI/pkg/encryption"
+	"github.com/HackIt-Taiwan/HackItDatabaseAPI/pkg/utils"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -38,10 +41,40 @@ func GetStaffByAnything(staff models.GetStaff) ([]models.Staff, error) {
 	var staffList []models.Staff
 
 	// Create query using bson.D to handle dynamic filtering
-	query := bson.D{}
+    flitterQuery := bson.D{}
 
+    val := reflect.ValueOf(staff)
+    typ := reflect.TypeOf(staff)
+
+    for i := 0; i < val.NumField(); i++ {
+        field := typ.Field(i)
+        fieldValue := val.Field(i)
+    
+        // Retrieve the bson tag from the struct field
+        bsonTag := field.Tag.Get("bson")
+        if bsonTag == "" || bsonTag == "-" {
+            continue // Skip fields without valid bson tags
+        }
+    
+        // Split the bson tag to check for `omitempty`
+        tagParts := strings.Split(bsonTag, ",")
+        bsonKey := tagParts[0] // The actual key name
+    
+        // Handle pointer values
+        if fieldValue.Kind() == reflect.Ptr {
+            if !fieldValue.IsNil() { // Pointer is not nil
+                flitterQuery = append(flitterQuery, bson.E{Key: bsonKey, Value: fieldValue.Elem().Interface()})
+            }
+        } else if fieldValue.IsValid() {
+            // Handle non-pointer values
+            if !utils.IsZeroValue(fieldValue) { // Non-zero value
+                flitterQuery = append(flitterQuery, bson.E{Key: bsonKey, Value: fieldValue.Interface()})
+            }
+        }
+    }
+    fmt.Println(flitterQuery)
 	// Use Find with the dynamically built query
-	cursor, err := database.GetCollection("staff").Find(context.Background(), query)
+	cursor, err := database.GetCollection("staff").Find(context.Background(), flitterQuery)
 	if err != nil {
 		return nil, err
 	}
@@ -73,21 +106,56 @@ func CreateStaffQueue(staff models.Staff) error {
 	return err
 }
 
-func UpdateStaffQueue(uuid string, staff models.Staff) error {
-    // Define the filter
+func UpdateStaffQueue(uuid string, staff models.UpdateStaff) error {
+    // Define the filter, using the primary key (_id) as the selector
     filter := bson.M{"_id": uuid}
 
-    // Wrap the struct in $set to update only the fields provided
-    update := bson.M{"$set": staff}
+    // Dynamically build the fields to update
+    updateFields := bson.D{}
+    val := reflect.ValueOf(staff)
+    typ := reflect.TypeOf(staff)
 
-    // Perform the update
-    result, err := database.GetCollection("staff").UpdateOne(context.Background(), filter, update)
-    if err != nil {
-        return err
+    for i := 0; i < val.NumField(); i++ {
+        field := typ.Field(i)
+        fieldValue := val.Field(i)
+    
+        // Retrieve the bson tag from the struct field
+        bsonTag := field.Tag.Get("bson")
+        if bsonTag == "" || bsonTag == "-" {
+            continue // Skip fields without valid bson tags
+        }
+    
+        // Split the bson tag to check for `omitempty`
+        tagParts := strings.Split(bsonTag, ",")
+        bsonKey := tagParts[0] // The actual key name
+    
+        // Handle pointer values
+        if fieldValue.Kind() == reflect.Ptr {
+            if !fieldValue.IsNil() { // Pointer is not nil
+                updateFields = append(updateFields, bson.E{Key: bsonKey, Value: fieldValue.Elem().Interface()})
+            }
+        } else if fieldValue.IsValid() {
+            // Handle non-pointer values
+            if !utils.IsZeroValue(fieldValue) { // Non-zero value
+                updateFields = append(updateFields, bson.E{Key: bsonKey, Value: fieldValue.Interface()})
+            }
+        }
     }
 
-    if result.MatchedCount == 0 {
-        return errors.New("no matching document found to update")
+    // Return an error if no fields are available to update
+    if len(updateFields) == 0 {
+        return errors.New("no fields to update")
+    }
+
+    // Wrap the updateFields in $set for partial updates
+    update := bson.D{
+        {Key: "$set", Value: updateFields},
+    }
+
+    // Execute the update operation
+    _, err := database.GetCollection("staff").UpdateOne(context.Background(), filter, update)
+    if err != nil {
+        return err
     }
 
     return nil
