@@ -7,7 +7,7 @@ type Staff struct {
 	RealName         string             `json:"real_name" bson:"real_name" binding:"required,max=10" encryption:"true"`
 	Nickname         string             `json:"nickname,omitempty" bson:"nickname,omitempty" binding:"max=20" encryption:"true"`
 	Email            string             `json:"email" bson:"email" binding:"required,email,max=320"`
-	OfficialEmail    string             `json:"offical_email" bson:"official_email" binding:"required,email,max=320"`
+	OfficialEmail    string             `json:"official_email" bson:"official_email" binding:"required,email,max=320"`
 	PhoneNumber      string             `json:"phone_number" bson:"phone_number" binding:"required,max=10" encryption:"true"`
 	HighSchoolStage  string             `json:"high_school_stage" bson:"high_school_stage" binding:"required,oneof=高一 高二 高三 高中以上"`
 	City             string             `json:"city" bson:"city" binding:"required,max=20" encryption:"true"`
