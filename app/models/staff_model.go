@@ -12,12 +12,20 @@ type Staff struct {
 	HighSchoolStage  string             `json:"high_school_stage" bson:"high_school_stage" binding:"required,oneof=高一 高二 高三 高中以上"`
 	City             string             `json:"city" bson:"city" binding:"required,max=20" encryption:"true"`
 	School           string             `json:"school,omitempty" bson:"school,omitempty" binding:"max=100" encryption:"true"`
+	NationalID       string             `json:"national_id" bson:"national_id,omitempty" binding:"required,len=10"`
+	StudentCard      Card               `json:"student_card,omitempty" bson:"student_card,omitempty" encryption:"true"`
+	IDCard           Card               `json:"id_card,omitempty" bson:"id_card,omitempty" encryption:"true"`
 	EmergencyContact []EmergencyContact `json:"emergency_contact,omitempty" bson:"emergency_contact,omitempty" binding:"min=1,max=2,dive" encryption:"true"`
 	DiscordID        string             `json:"discord_id,omitempty" bson:"discord_id,omitempty" binding:"max=30"`
 	Introduction     string             `json:"introduction,omitempty" bson:"introduction,omitempty" binding:"max=1000" encryption:"true"`
 	CurrentGroup     string             `json:"current_group" bson:"current_group" binding:"required,oneof=HackIt 策劃部 設計部 行政部 公關組 活動企劃組 美術組 資訊組 影音組 行政組 財務組 其他"`
 	PermissionLevel  int                `json:"permission_level" bson:"permission_level" binding:"required,oneof=1 2 3 4 5 6"`
 	CreatedAt        time.Time          `json:"created_at" bson:"created_at"`
+}
+
+type Card struct {
+	Front string `json:"front,omitempty" bson:"front,omitempty" encryption:"true"`
+	Back  string `json:"back,omitempty" bson:"back,omitempty" encryption:"true"`
 }
 
 type UpdateStaff struct {
@@ -29,6 +37,9 @@ type UpdateStaff struct {
 	HighSchoolStage  string             `json:"high_school_stage" bson:"high_school_stage" binding:"oneof=高一 高二 高三 高中以上"`
 	City             string             `json:"city" bson:"city" binding:"max=20" encryption:"true"`
 	School           string             `json:"school,omitempty" bson:"school,omitempty" binding:"max=100" encryption:"true"`
+	NationalID       string             `json:"national_id" bson:"national_id,omitempty" binding:"len=10"`
+	StudentCard      Card               `json:"student_card" bson:"student_card,omitempty" encryption:"true"`
+	IDCard           Card               `json:"id_card" bson:"id_card,omitempty" encryption:"true"`
 	EmergencyContact []EmergencyContact `json:"emergency_contact,omitempty" bson:"emergency_contact,omitempty" binding:"max=2,dive" encryption:"true"`
 	DiscordID        string             `json:"discord_id,omitempty" bson:"discord_id,omitempty" binding:"max=30"`
 	Introduction     string             `json:"introduction,omitempty" bson:"introduction,omitempty" binding:"max=1000" encryption:"true"`
@@ -37,13 +48,13 @@ type UpdateStaff struct {
 }
 
 type GetStaff struct {
-	UUID            string    `json:"uuid" bson:"_id"`
-	Email           string    `json:"email" bson:"email"`
-	OfficialEmail   string    `json:"official_email" bson:"official_email"`
-	HighSchoolStage string    `json:"high_school_stage" bson:"high_school_stage"`
-	DiscordID       string    `json:"discord_id,omitempty" bson:"discord_id,omitempty"`
-	CurrentGroup    string    `json:"current_group" bson:"current_group"`
-	PermissionLevel int       `json:"permission_level" bson:"permission_level"`
+	UUID            string `json:"uuid" bson:"_id"`
+	Email           string `json:"email" bson:"email"`
+	OfficialEmail   string `json:"official_email" bson:"official_email"`
+	HighSchoolStage string `json:"high_school_stage" bson:"high_school_stage"`
+	DiscordID       string `json:"discord_id,omitempty" bson:"discord_id,omitempty"`
+	CurrentGroup    string `json:"current_group" bson:"current_group"`
+	PermissionLevel int    `json:"permission_level" bson:"permission_level"`
 }
 
 type EmergencyContact struct {

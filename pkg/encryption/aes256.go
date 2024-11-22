@@ -22,7 +22,7 @@ func init() {
 
 func encryptAES256(plaintext string) (string, error) {
 	if strings.HasPrefix(plaintext, "AES256:") {
-		return "", fmt.Errorf("String already encrypted")
+		return "", fmt.Errorf("string already encrypted")
 	}
 
 	block, err := aes.NewCipher(key)
@@ -69,34 +69,43 @@ func decryptAES256(ciphertext string) (string, error) {
 	return string(data), nil
 }
 
+
 func EncryptStructFields(data interface{}) error {
 	v := reflect.ValueOf(data).Elem()
 	t := v.Type()
 
 	for i := 0; i < t.NumField(); i++ {
 		field := t.Field(i)
+
 		if field.Tag.Get("encryption") == "true" {
-			if v.Field(i).Kind() == reflect.Slice {
-				slice := v.Field(i)
-				for j := 0; j < slice.Len(); j++ {
-					err := EncryptStructFields(slice.Index(j).Addr().Interface())
+			fieldValue := v.Field(i)
+
+			if fieldValue.Kind() == reflect.Slice {
+				for j := 0; j < fieldValue.Len(); j++ {
+					err := EncryptStructFields(fieldValue.Index(j).Addr().Interface())
 					if err != nil {
 						return err
 					}
 				}
-			} else {
-				value := v.Field(i).String()
+			} else if fieldValue.Kind() == reflect.Struct {
+				err := EncryptStructFields(fieldValue.Addr().Interface())
+				if err != nil {
+					return err
+				}
+			} else if fieldValue.Kind() == reflect.String {
+				value := fieldValue.String()
 				encryptedValue, err := encryptAES256(value)
 				if err != nil {
-					if err.Error() == "String already encrypted" { // Fallback for updating.
+					if err.Error() == "String already encrypted" {
 						continue
 					}
 					return err
 				}
-				v.Field(i).SetString(encryptedValue)
+				fieldValue.SetString(encryptedValue)
 			}
 		}
 	}
+
 	return nil
 }
 
@@ -106,25 +115,32 @@ func DecryptStructFields(data interface{}) error {
 
 	for i := 0; i < t.NumField(); i++ {
 		field := t.Field(i)
+
 		if field.Tag.Get("encryption") == "true" {
-			if v.Field(i).Kind() == reflect.Slice {
-				slice := v.Field(i)
-				for j := 0; j < slice.Len(); j++ {
-					err := DecryptStructFields(slice.Index(j).Addr().Interface())
+			fieldValue := v.Field(i)
+
+			if fieldValue.Kind() == reflect.Slice {
+				for j := 0; j < fieldValue.Len(); j++ {
+					err := DecryptStructFields(fieldValue.Index(j).Addr().Interface())
 					if err != nil {
 						return err
 					}
 				}
-			} else {
-				value := v.Field(i).String()
+			} else if fieldValue.Kind() == reflect.Struct {
+				err := DecryptStructFields(fieldValue.Addr().Interface())
+				if err != nil {
+					return err
+				}
+			} else if fieldValue.Kind() == reflect.String {
+				value := fieldValue.String()
 				decryptedValue, err := decryptAES256(value)
 				if err != nil {
 					return err
 				}
-				v.Field(i).SetString(decryptedValue)
+				fieldValue.SetString(decryptedValue)
 			}
 		}
 	}
+
 	return nil
 }
-
