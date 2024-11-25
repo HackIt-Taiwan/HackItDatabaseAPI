@@ -32,7 +32,7 @@ type UpdateStaff struct {
 	RealName         string             `json:"real_name" bson:"real_name" binding:"max=10" encryption:"true"`
 	Nickname         string             `json:"nickname,omitempty" bson:"nickname,omitempty" binding:"max=20" encryption:"true"`
 	Email            string             `json:"email" bson:"email" binding:"email,max=320"`
-	OfficialEmail    string             `json:"offical_email" bson:"official_email" binding:"email,max=320"`
+	OfficialEmail    string             `json:"official_email" bson:"official_email" binding:"email,max=320"`
 	PhoneNumber      string             `json:"phone_number" bson:"phone_number" binding:"max=10" encryption:"true"`
 	HighSchoolStage  string             `json:"high_school_stage" bson:"high_school_stage" binding:"oneof=高一 高二 高三 高中以上"`
 	City             string             `json:"city" bson:"city" binding:"max=20" encryption:"true"`
