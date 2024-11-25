@@ -33,7 +33,7 @@ type UpdateStaff struct {
 	Nickname         string             `json:"nickname,omitempty" bson:"nickname,omitempty" binding:"max=20" encryption:"true"`
 	Email            string             `json:"email,omitempty" bson:"email,omitempty" binding:"email,max=320"`
 	OfficialEmail    string             `json:"offical_email,omitempty" bson:"official_email,omitempty" binding:"email,max=320"`
-	PhoneNumber      string             `json:"phone_number,omitempty" bson:"phone_number,omitempty" binding:"max=10" encryption:"true"`
+	PhoneNumber      string             `json:"phone_number,omitempty" bson:"phone_number,omitempty" binding:"max=20" encryption:"true"`
 	HighSchoolStage  string             `json:"high_school_stage,omitempty" bson:"high_school_stage,omitempty" binding:"oneof=高一 高二 高三 高中以上"`
 	City             string             `json:"city,omitempty" bson:"city,omitempty" binding:"max=20" encryption:"true"`
 	School           string             `json:"school,omitempty" bson:"school,omitempty" binding:"max=100" encryption:"true"`
