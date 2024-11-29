@@ -10,6 +10,7 @@ import (
 	"github.com/HackIt-Taiwan/HackItDatabaseAPI/pkg/utils"
 	"github.com/gin-gonic/gin"
 	_ "github.com/joho/godotenv/autoload"
+	_ "github.com/HackIt-Taiwan/HackItDatabaseAPI/pkg/cloudflare"
 )
 
 func main() {

@@ -1,12 +1,17 @@
 package controllers
 
 import (
+	"context"
+	"fmt"
+	"os"
 	"time"
 
 	"github.com/HackIt-Taiwan/HackItDatabaseAPI/app/models"
 	"github.com/HackIt-Taiwan/HackItDatabaseAPI/app/queries"
+	cf "github.com/HackIt-Taiwan/HackItDatabaseAPI/pkg/cloudflare"
 	"github.com/HackIt-Taiwan/HackItDatabaseAPI/pkg/encryption"
 	"github.com/HackIt-Taiwan/HackItDatabaseAPI/pkg/utils"
+	"github.com/cloudflare/cloudflare-go"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -118,4 +123,36 @@ func UpdateStaff(c *gin.Context) {
 	}
 
 	utils.SimpleResponse(c, 200, "Successfully updated staff.", currentStaff)
+}
+
+func SendCloudflareVerifyEmail(c *gin.Context) {
+	// Validate request body
+	UUID := c.Param("id")
+
+	if UUID == "" {
+		utils.SimpleResponse(c, 400, "Invalid request", nil)
+		return
+	}
+
+	staff, err := queries.GetStaffQueueById(UUID)
+	if err == mongo.ErrNoDocuments {
+		utils.SimpleResponse(c, 400, "Staff not found", err.Error())
+		return
+	} else if err != nil {
+		utils.SimpleResponse(c, 500, "Internal server error while get staff", err.Error())
+		return
+	}
+
+	DestinationAddressParms := cloudflare.CreateEmailRoutingAddressParameters{
+		Email: staff.Email,
+	}
+
+	result, err := cf.Api.CreateEmailRoutingDestinationAddress(context.Background(), cloudflare.AccountIdentifier(os.Getenv("CLOUDFALRE_API_ACCOUNT_ID")), DestinationAddressParms)
+	fmt.Println(err)
+	if err != nil {
+		utils.SimpleResponse(c, 500, "Cloudflare api error", err.Error())
+		return
+	}
+
+	utils.SimpleResponse(c, 200, "Successfully send cloudflare verify email.", result)
 }
