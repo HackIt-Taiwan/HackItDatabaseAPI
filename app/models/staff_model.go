@@ -12,7 +12,7 @@ type Staff struct {
 	HighSchoolStage  string             `json:"high_school_stage" bson:"high_school_stage" binding:"required,oneof=高一 高二 高三 高中以上"`
 	City             string             `json:"city" bson:"city" binding:"required,max=20" encryption:"true"`
 	School           string             `json:"school,omitempty" bson:"school,omitempty" binding:"max=100" encryption:"true"`
-	NationalID       string             `json:"national_id" bson:"national_id,omitempty" binding:"required,len=10"`
+	NationalID       string             `json:"national_id" bson:"national_id,omitempty" binding:"len=10"`
 	StudentCard      Card               `json:"student_card,omitempty" bson:"student_card,omitempty" encryption:"true"`
 	IDCard           Card               `json:"id_card,omitempty" bson:"id_card,omitempty" encryption:"true"`
 	EmergencyContact []EmergencyContact `json:"emergency_contact,omitempty" bson:"emergency_contact,omitempty" binding:"min=1,max=2,dive" encryption:"true"`
