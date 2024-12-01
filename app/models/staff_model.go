@@ -19,7 +19,7 @@ type Staff struct {
 	DiscordID        string             `json:"discord_id,omitempty" bson:"discord_id,omitempty" binding:"max=30"`
 	Introduction     string             `json:"introduction,omitempty" bson:"introduction,omitempty" binding:"max=1000" encryption:"true"`
 	CurrentGroup     string             `json:"current_group" bson:"current_group" binding:"required,oneof=HackIt 行政部 公共事務部 策劃部 媒體影像部 資訊科技部"`
-	PermissionLevel  int                `json:"permission_level" bson:"permission_level" binding:"required,oneof=1 2 3 4 5 6 0"`
+	PermissionLevel  int                `json:"permission_level" bson:"permission_level" binding:"required,oneof=1 2 3 4 5 6 0 10"`
 	CreatedAt        time.Time          `json:"created_at" bson:"created_at"`
 }
 
