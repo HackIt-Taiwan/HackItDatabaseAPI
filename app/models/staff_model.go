@@ -21,7 +21,7 @@ type Staff struct {
 	CurrentGroup     string             `json:"current_group" bson:"current_group" binding:"required,oneof=HackIt 行政部 企劃組 進度管理組 視覺影像組 平面設計組 資訊科技部 公關組 社群管理組 行政部"`
 	PermissionLevel  int                `json:"permission_level" bson:"permission_level" binding:"required,oneof=1 2 3 4 5 6 0 10"`
 	TeamLeader       string             `json:"team_leader,omitempty" bson:"team_leader,omitempty" binding:"max=30"`
-	ApplyMessage     string             `json:"apply_message,omitempty" bson:"apply_message,omitempty" binding:"max=30"`
+	ApplyMessage     string             `json:"apply_message,omitempty" bson:"apply_message,omitempty" binding:"max=200"`
 	CreatedAt        time.Time          `json:"created_at" bson:"created_at"`
 }
 
@@ -47,7 +47,7 @@ type UpdateStaff struct {
 	Introduction     string             `json:"introduction,omitempty" bson:"introduction,omitempty" binding:"max=1000" encryption:"true"`
 	CurrentGroup     string             `json:"current_group,omitempty" bson:"current_group,omitempty"`
 	TeamLeader       string             `json:"team_leader,omitempty" bson:"team_leader,omitempty" binding:"max=30"`
-	ApplyMessage     string             `json:"apply_message,omitempty" bson:"apply_message,omitempty" binding:"max=30"`
+	ApplyMessage     string             `json:"apply_message,omitempty" bson:"apply_message,omitempty" binding:"max=200"`
 	PermissionLevel  int                `json:"permission_level,omitempty" bson:"permission_level,omitempty"`
 }
 
