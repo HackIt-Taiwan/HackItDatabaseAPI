@@ -21,6 +21,7 @@ type Staff struct {
 	CurrentGroup     string             `json:"current_group" bson:"current_group" binding:"required,oneof=HackIt 行政部 公共事務部 策劃部 媒體影像部 資訊科技部"`
 	PermissionLevel  int                `json:"permission_level" bson:"permission_level" binding:"required,oneof=1 2 3 4 5 6 0 10"`
 	TeamLeader       string             `json:"team_leader,omitempty" bson:"team_leader,omitempty" binding:"max=30"`
+	ApplyMessage     string             `json:"apply_message,omitempty" bson:"apply_message,omitempty" binding:"max=30"`
 	CreatedAt        time.Time          `json:"created_at" bson:"created_at"`
 }
 
@@ -46,6 +47,7 @@ type UpdateStaff struct {
 	Introduction     string             `json:"introduction,omitempty" bson:"introduction,omitempty" binding:"max=1000" encryption:"true"`
 	CurrentGroup     string             `json:"current_group,omitempty" bson:"current_group,omitempty" binding:"oneof=HackIt 行政部 公共事務部 策劃部 媒體影像部 資訊科技部"`
 	TeamLeader       string             `json:"team_leader,omitempty" bson:"team_leader,omitempty" binding:"max=30"`
+	ApplyMessage     string             `json:"apply_message,omitempty" bson:"apply_message,omitempty" binding:"max=30"`
 	PermissionLevel  int                `json:"permission_level,omitempty" bson:"permission_level,omitempty" binding:"oneof=1 2 3 4 5 6 0 10"`
 }
 
@@ -57,6 +59,8 @@ type GetStaff struct {
 	DiscordID       string `json:"discord_id,omitempty" bson:"discord_id,omitempty"`
 	CurrentGroup    string `json:"current_group" bson:"current_group"`
 	PermissionLevel int    `json:"permission_level" bson:"permission_level"`
+	TeamLeader      string `json:"team_leader,omitempty" bson:"team_leader,omitempty" binding:"max=30"`
+	ApplyMessage    string `json:"apply_message,omitempty" bson:"apply_message,omitempty" binding:"max=30"`
 }
 
 type EmergencyContact struct {
