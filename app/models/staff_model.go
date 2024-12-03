@@ -33,22 +33,22 @@ type Card struct {
 type UpdateStaff struct {
 	RealName         string             `json:"real_name,omitempty" bson:"real_name,omitempty" binding:"max=10" encryption:"true"`
 	Nickname         string             `json:"nickname,omitempty" bson:"nickname,omitempty" binding:"max=20" encryption:"true"`
-	Email            string             `json:"email,omitempty" bson:"email,omitempty" binding:"email,max=320"`
-	OfficialEmail    string             `json:"offical_email,omitempty" bson:"official_email,omitempty" binding:"email,max=320"`
+	Email            string             `json:"email,omitempty" bson:"email,omitempty" binding:"max=320"`
+	OfficialEmail    string             `json:"offical_email,omitempty" bson:"official_email,omitempty" binding:"max=320"`
 	PhoneNumber      string             `json:"phone_number,omitempty" bson:"phone_number,omitempty" binding:"max=20" encryption:"true"`
-	HighSchoolStage  string             `json:"high_school_stage,omitempty" bson:"high_school_stage,omitempty" binding:"oneof=高一 高二 高三 高中以上"`
+	HighSchoolStage  string             `json:"high_school_stage,omitempty" bson:"high_school_stage,omitempty"`
 	City             string             `json:"city,omitempty" bson:"city,omitempty" binding:"max=20" encryption:"true"`
 	School           string             `json:"school,omitempty" bson:"school,omitempty" binding:"max=100" encryption:"true"`
-	NationalID       string             `json:"national_id,omitempty" bson:"national_id,omitempty" binding:"len=10"`
+	NationalID       string             `json:"national_id,omitempty" bson:"national_id,omitempty" binding:"max=10"`
 	StudentCard      Card               `json:"student_card,omitempty" bson:"student_card,omitempty" encryption:"true"`
 	IDCard           Card               `json:"id_card,omitempty" bson:"id_card,omitempty" encryption:"true"`
 	EmergencyContact []EmergencyContact `json:"emergency_contact,omitempty" bson:"emergency_contact,omitempty" binding:"max=2,dive" encryption:"true"`
 	DiscordID        string             `json:"discord_id,omitempty" bson:"discord_id,omitempty" binding:"max=30"`
 	Introduction     string             `json:"introduction,omitempty" bson:"introduction,omitempty" binding:"max=1000" encryption:"true"`
-	CurrentGroup     string             `json:"current_group,omitempty" bson:"current_group,omitempty" binding:"oneof=HackIt 行政部 企劃組 進度管理組 視覺影像組 平面設計組 資訊科技部 公關組 社群管理組 行政部"`
+	CurrentGroup     string             `json:"current_group,omitempty" bson:"current_group,omitempty"`
 	TeamLeader       string             `json:"team_leader,omitempty" bson:"team_leader,omitempty" binding:"max=30"`
 	ApplyMessage     string             `json:"apply_message,omitempty" bson:"apply_message,omitempty" binding:"max=30"`
-	PermissionLevel  int                `json:"permission_level,omitempty" bson:"permission_level,omitempty" binding:"oneof=1 2 3 4 5 6 0 10"`
+	PermissionLevel  int                `json:"permission_level,omitempty" bson:"permission_level,omitempty"`
 }
 
 type GetStaff struct {
