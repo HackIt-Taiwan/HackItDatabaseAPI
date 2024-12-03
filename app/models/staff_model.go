@@ -34,7 +34,7 @@ type UpdateStaff struct {
 	RealName         string             `json:"real_name,omitempty" bson:"real_name,omitempty" binding:"max=10" encryption:"true"`
 	Nickname         string             `json:"nickname,omitempty" bson:"nickname,omitempty" binding:"max=20" encryption:"true"`
 	Email            string             `json:"email,omitempty" bson:"email,omitempty" binding:"max=320"`
-	OfficialEmail    string             `json:"offical_email,omitempty" bson:"official_email,omitempty" binding:"max=320"`
+	OfficialEmail    string             `json:"official_email,omitempty" bson:"official_email,omitempty" binding:"max=320"`
 	PhoneNumber      string             `json:"phone_number,omitempty" bson:"phone_number,omitempty" binding:"max=20" encryption:"true"`
 	HighSchoolStage  string             `json:"high_school_stage,omitempty" bson:"high_school_stage,omitempty"`
 	City             string             `json:"city,omitempty" bson:"city,omitempty" binding:"max=20" encryption:"true"`
