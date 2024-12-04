@@ -80,6 +80,10 @@ func EncryptStructFields(data interface{}) error {
 		if field.Tag.Get("encryption") == "true" {
 			fieldValue := v.Field(i)
 
+			if isEmptyValue(fieldValue) {
+				continue
+			}
+
 			if fieldValue.Kind() == reflect.Slice {
 				for j := 0; j < fieldValue.Len(); j++ {
 					err := EncryptStructFields(fieldValue.Index(j).Addr().Interface())
@@ -109,6 +113,19 @@ func EncryptStructFields(data interface{}) error {
 	return nil
 }
 
+func isEmptyValue(v reflect.Value) bool {
+	switch v.Kind() {
+	case reflect.String:
+		return v.Len() == 0
+	case reflect.Array, reflect.Slice, reflect.Map, reflect.Chan:
+		return v.IsNil() || v.Len() == 0
+	case reflect.Ptr, reflect.Interface:
+		return v.IsNil()
+	default:
+		return !v.IsValid() || v.IsZero()
+	}
+}
+
 func DecryptStructFields(data interface{}) error {
 	v := reflect.ValueOf(data).Elem()
 	t := v.Type()
@@ -118,6 +135,10 @@ func DecryptStructFields(data interface{}) error {
 
 		if field.Tag.Get("encryption") == "true" {
 			fieldValue := v.Field(i)
+
+			if isEmptyValue(fieldValue) {
+				continue
+			}
 
 			if fieldValue.Kind() == reflect.Slice {
 				for j := 0; j < fieldValue.Len(); j++ {
