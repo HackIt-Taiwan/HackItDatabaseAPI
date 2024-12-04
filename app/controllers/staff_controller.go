@@ -24,6 +24,7 @@ func CreateNewStaff(c *gin.Context) {
 		return
 	}
 	staff.CreatedAt = time.Now()
+	fmt.Println(staff)
 
 	if err := encryption.EncryptStructFields(&staff); err != nil {
 		utils.SimpleResponse(c, 400, "Error encryption your data", err.Error())
