@@ -65,7 +65,7 @@ func CreateNewStaff(c *gin.Context) {
 		utils.SimpleResponse(c, 500, "Internal server error", err.Error())
 		return
 	}
-
+	fmt.Println(staff)
 	utils.SimpleResponse(c, 201, "Successful create new staff", nil)
 }
 
