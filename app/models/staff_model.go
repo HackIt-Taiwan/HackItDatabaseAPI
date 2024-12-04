@@ -18,7 +18,7 @@ type Staff struct {
 	EmergencyContact []EmergencyContact `json:"emergency_contact,omitempty" bson:"emergency_contact,omitempty" binding:"min=1,max=2,dive" encryption:"true"`
 	DiscordID        string             `json:"discord_id,omitempty" bson:"discord_id,omitempty" binding:"max=30"`
 	Introduction     string             `json:"introduction,omitempty" bson:"introduction,omitempty" binding:"max=1000" encryption:"true"`
-	CurrentGroup     string             `json:"current_group" bson:"current_group" binding:"required,oneof=HackIt 行政部 企劃組 進度管理組 視覺影像組 平面設計組 資訊科技部 公關組 社群管理組 行政部 pedding"`
+	CurrentGroup     string             `json:"current_group" bson:"current_group" binding:"required,oneof=HackIt 行政部 企劃組 進度管理組 視覺影像組 平面設計組 資訊科技部 公關組 社群管理組 行政部 pending"`
 	PermissionLevel  int                `json:"permission_level" bson:"permission_level" binding:"required,oneof=1 2 3 4 5 6 0 10"`
 	TeamLeader       string             `json:"team_leader,omitempty" bson:"team_leader,omitempty" binding:"max=30"`
 	ApplyMessage     string             `json:"apply_message,omitempty" bson:"apply_message,omitempty" binding:"max=200"`
