@@ -18,7 +18,7 @@ type Staff struct {
 	EmergencyContact   []EmergencyContact `json:"emergency_contact,omitempty" bson:"emergency_contact,omitempty" binding:"min=1,max=2,dive" encryption:"true"`
 	DiscordID          string             `json:"discord_id,omitempty" bson:"discord_id,omitempty" binding:"max=30"`
 	Introduction       string             `json:"introduction,omitempty" bson:"introduction,omitempty" binding:"max=1000" encryption:"true"`
-	Autobiography      string             `json:"autobiography,omitempty" bson:"autobiography,omitempty" binding:"max=1000" encryption:"true"`
+	Choicereason       string             `json:"choicereason,omitempty" bson:"choicereason,omitempty" binding:"max=1000" encryption:"true"`
 	RelevantExperience string             `json:"relevant_experience,omitempty" bson:"relevant_experience,omitempty" binding:"max=1000" encryption:"true"`
 	CurrentGroup       string             `json:"current_group" bson:"current_group" binding:"required,oneof=HackIt 行政部 策劃部 資訊科技部 公共事務部 媒體影像部 行政部 企劃組 進度管理組 視覺影像組 平面設計組 公關組 社群管理組 pending"`
 	PermissionLevel    int                `json:"permission_level" bson:"permission_level" binding:"required,oneof=1 2 3 4 5 6 0 10"`
