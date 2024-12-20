@@ -20,6 +20,7 @@ type Staff struct {
 	Introduction       string             `json:"introduction,omitempty" bson:"introduction,omitempty" binding:"max=1000" encryption:"true"`
 	Choicereason       string             `json:"choicereason,omitempty" bson:"choicereason,omitempty" binding:"max=1000" encryption:"true"`
 	RelevantExperience string             `json:"relevant_experience,omitempty" bson:"relevant_experience,omitempty" binding:"max=1000" encryption:"true"`
+	SignatureUrl       string             `json:"signature_url,omitempty" bson:"signature_url,omitempty" binding:"max=200"`
 	CurrentGroup       string             `json:"current_group" bson:"current_group" binding:"required,oneof=HackIt 行政部 策劃部 資訊科技部 公共事務部 媒體影像部 行政部 企劃組 進度管理組 視覺影像組 平面設計組 公關組 社群管理組 pending"`
 	PermissionLevel    int                `json:"permission_level" bson:"permission_level" binding:"required,oneof=1 2 3 4 5 6 0 10"`
 	TeamLeader         string             `json:"team_leader,omitempty" bson:"team_leader,omitempty" binding:"max=30"`
