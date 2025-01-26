@@ -28,6 +28,7 @@ func main() {
 
 	routes.StaffRoute(r)
 	routes.UserRoute(r)
+	routes.EtcRoute(r)
 
 	if err := root.Run(); err != nil {
 		fmt.Printf("Server failed to start: %v\n", err)

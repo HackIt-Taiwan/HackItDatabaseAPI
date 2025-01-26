@@ -4,8 +4,10 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
+	"crypto/sha256"
 	"crypto/sha512"
 	"encoding/base64"
+	"encoding/hex"
 	"fmt"
 	"io"
 	"os"
@@ -69,6 +71,107 @@ func decryptAES256(ciphertext string) (string, error) {
 	return string(data), nil
 }
 
+func EncryptFieldsByConfig(data map[string]interface{}) error {
+	// 檢查是否有 ignore_encryption 配置
+	ignoreConfig, hasIgnore := data["ignore_encryption"].(map[string]interface{})
+
+	// 處理所有字段
+	for field, value := range data {
+		// 跳過 `ignore_encryption` 配置字段
+		if field == "ignore_encryption" {
+			continue
+		}
+
+		// 如果該字段在 `ignore_encryption` 中，則跳過
+		if hasIgnore {
+			if _, isIgnored := ignoreConfig[field]; isIgnored {
+				continue
+			}
+		}
+
+		// 跳過以 "_hash" 結尾的字段
+		if strings.HasSuffix(field, "_hash") {
+			continue
+		}
+
+		// 處理字串類型字段
+		if strValue, ok := value.(string); ok {
+			// 生成哈希值
+			hash := sha256.Sum256([]byte(strValue))
+			hashHex := hex.EncodeToString(hash[:])
+
+			// 生成加密值
+			encryptedValue, err := encryptAES256(strValue)
+			if err != nil {
+				return err
+			}
+
+			// 設置加密字段
+			data[field] = encryptedValue
+
+			// 生成哈希字段
+			hashFieldName := field + "_hash"
+			data[hashFieldName] = hashHex
+		}
+	}
+
+	// 刪除 `ignore_encryption` 配置
+	delete(data, "ignore_encryption")
+	return nil
+}
+
+func DecryptFieldsByConfig(data map[string]interface{}) error {
+	for field, value := range data {
+		if strValue, ok := value.(string); ok {
+			if strings.HasPrefix(strValue, "AES256:") {
+				decryptedValue, err := decryptAES256(strValue)
+				if err != nil {
+					return err
+				}
+
+				data[field] = decryptedValue
+			}
+		}
+
+		delete(data, field+"_hash")
+	}
+
+	return nil
+}
+
+// This is use for the get data
+func ProcessFieldsForHash(data map[string]interface{}) error {
+	ignoreConfig, hasIgnore := data["ignore_encryption"].(map[string]interface{})
+
+	for field, value := range data {
+		if field == "ignore_encryption" {
+			continue
+		}
+
+		if strings.HasSuffix(field, "_hash") {
+			continue
+		}
+
+		if hasIgnore {
+			if _, isIgnored := ignoreConfig[field]; isIgnored {
+				continue
+			}
+		}
+
+		if strValue, ok := value.(string); ok {
+			hash := sha256.Sum256([]byte(strValue))
+			hashHex := hex.EncodeToString(hash[:])
+
+			hashFieldName := field + "_hash"
+			data[hashFieldName] = hashHex
+
+			delete(data, field)
+		}
+	}
+
+	delete(data, "ignore_encryption")
+	return nil
+}
 
 func EncryptStructFields(data interface{}) error {
 	v := reflect.ValueOf(data).Elem()

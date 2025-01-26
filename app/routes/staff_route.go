@@ -12,4 +12,6 @@ func StaffRoute(r *gin.RouterGroup) {
 	auth.POST("/create/new", controllers.CreateNewStaff)
 	auth.POST("/update/:id", controllers.UpdateStaff)
 	auth.POST("/send/verify/:id", controllers.SendCloudflareVerifyEmail)
+	auth.POST("/:collection", controllers.SaveData)
+	auth.GET("/:collection", controllers.GetData)
 }
