@@ -5,6 +5,8 @@ import (
 
 	"github.com/HackIt-Taiwan/HackItDatabaseAPI/pkg/database"
 	"github.com/HackIt-Taiwan/HackItDatabaseAPI/pkg/encryption"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 func CreateData(collection string, data map[string]interface{}) error {
@@ -38,4 +40,22 @@ func GetData(collection string, filter map[string]interface{}) ([]map[string]int
 	}
 
 	return results, nil
+}
+
+func UpdateDataByID(collection string, id interface{}, newData map[string]interface{}) error {
+	delete(newData, "_id")
+
+	filter := bson.M{"_id": id}
+	update := bson.M{"$set": newData}
+
+	result, err := database.GetCollection(collection).UpdateOne(context.Background(), filter, update)
+	if err != nil {
+		return err
+	}
+
+	if result.MatchedCount == 0 {
+		return mongo.ErrNoDocuments
+	}
+
+	return nil
 }

@@ -55,3 +55,34 @@ func GetData(c *gin.Context) {
 
 	utils.SimpleResponse(c, 201, "Successful create new data", results)
 }
+
+func EditData(c *gin.Context) {
+	var requestData map[string]interface{}
+	collection := c.Param("collection")
+
+	if err := c.ShouldBindJSON(&requestData); err != nil {
+		utils.SimpleResponse(c, 400, "Invalid request", err.Error())
+		return
+	}
+
+	id, exists := requestData["_id"]
+	if !exists {
+		utils.SimpleResponse(c, 400, "Missing _id field", "The _id field is required for updates.")
+		return
+	}
+
+	err := encryption.EncryptFieldsByConfig(requestData)
+	if err != nil {
+		fmt.Println("Error encrypting fields:", err)
+		utils.SimpleResponse(c, 500, "Encryption error", err.Error())
+		return
+	}
+
+	err = queries.UpdateDataByID(collection, id, requestData)
+	if err != nil {
+		utils.SimpleResponse(c, 500, "Internal server error", err.Error())
+		return
+	}
+
+	utils.SimpleResponse(c, 200, "Data successfully updated", nil)
+}

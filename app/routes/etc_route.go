@@ -8,6 +8,7 @@ import (
 func EtcRoute(r *gin.RouterGroup) {
 	auth := r.Group("/etc")
 
-	auth.POST("/:collection", controllers.SaveData)
-	auth.GET("/:collection", controllers.GetData)
+	auth.POST("/create/:collection", controllers.SaveData)
+	auth.POST("/get/:collection", controllers.GetData)
+	auth.POST("/edit/:collection", controllers.EditData)
 }
