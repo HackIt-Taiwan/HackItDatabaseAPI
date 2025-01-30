@@ -28,7 +28,7 @@ func SaveData(c *gin.Context) {
 		utils.SimpleResponse(c, 500, "Internal server error", err.Error())
 		return
 	}
-	utils.SimpleResponse(c, 201, "Successful create new data", nil)
+	utils.SimpleResponse(c, 201, "Successfully created new data", nil)
 }
 
 func GetData(c *gin.Context) {
@@ -53,7 +53,7 @@ func GetData(c *gin.Context) {
 		return
 	}
 
-	utils.SimpleResponse(c, 201, "Successful create new data", results)
+	utils.SimpleResponse(c, 200, "Successfully acquired data", results)
 }
 
 func EditData(c *gin.Context) {
