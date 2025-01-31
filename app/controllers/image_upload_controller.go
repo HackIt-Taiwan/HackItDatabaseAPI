@@ -3,8 +3,6 @@ package controllers
 import (
 	"bytes"
 	"context"
-	"crypto/rand"
-	"encoding/hex"
 	"fmt"
 	"io"
 	"path/filepath"
@@ -13,6 +11,7 @@ import (
 	"github.com/HackIt-Taiwan/HackItDatabaseAPI/pkg/utils"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/gin-gonic/gin"
+	"math/rand"
 )
 
 // UploadImage handles the image upload to S3 and saving the image metadata in the database
@@ -74,7 +73,7 @@ func UploadImage(c *gin.Context) {
 
 // Generate secret file path for the image
 func generateFilePath(filename string) (filepath string) {
-	secertPath := randomPath(64)
+	secertPath := randomPath(128)
 	return secertPath + filename
 
 }
@@ -105,11 +104,12 @@ func uploadToS3(filePath string, contentType string, fileContent []byte) error {
 	return err
 }
 
+const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
 func randomPath(n int) string {
-	bytes := make([]byte, n)
-	_, err := rand.Read(bytes)
-	if err != nil {
-		panic(err)
+	b := make([]byte, n)
+	for i := range b {
+		b[i] = letters[rand.Intn(len(letters))]
 	}
-	return hex.EncodeToString(bytes)
+	return "/" + string(b)
 }
