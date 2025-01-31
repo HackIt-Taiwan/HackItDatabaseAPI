@@ -62,7 +62,6 @@ func UploadImage(c *gin.Context) {
 
 	// Generate S3 file path and upload the image
 	filePath := generateFilePath(filepath.Ext(file.Filename))
-	fmt.Println(filePath)
 	if err := uploadToS3(filePath, contentType, src.Bytes()); err != nil {
 		utils.SimpleResponse(c, 500, "Error uploading file to S3", err)
 		return
