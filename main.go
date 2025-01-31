@@ -22,9 +22,13 @@ func main() {
 	initialization.Init()
 
 	r := root.Group("/api/v" + os.Getenv("VERSION"))
-	r.Use(middleware.TokenAuthMiddleware())
+
 
 	utils.PrintAppBanner()
+
+	routes.PublicRoute(r)
+
+	r.Use(middleware.TokenAuthMiddleware())
 
 	routes.StaffRoute(r)
 	routes.UserRoute(r)

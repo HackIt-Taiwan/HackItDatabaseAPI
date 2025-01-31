@@ -20,6 +20,7 @@ func SaveData(c *gin.Context) {
 	err := encryption.EncryptFieldsByConfig(requestData)
 	if err != nil {
 		fmt.Println("Error encrypting fields:", err)
+		utils.SimpleResponse(c, 500, "Error encrypt field", err.Error())
 		return
 	}
 
