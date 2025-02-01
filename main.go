@@ -26,6 +26,8 @@ func main() {
 
 	utils.PrintAppBanner()
 
+	r.Use(middleware.CORSMiddleware())
+
 	routes.PublicRoute(r)
 
 	r.Use(middleware.TokenAuthMiddleware())
