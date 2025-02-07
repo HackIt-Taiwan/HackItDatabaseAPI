@@ -9,4 +9,5 @@ func PublicRoute(r *gin.RouterGroup) {
 	auth := r.Group("/public")
 
 	auth.POST("/image/upload", controllers.UploadImage)
+	auth.POST("/pdf/upload", controllers.UploadPDF)
 }
