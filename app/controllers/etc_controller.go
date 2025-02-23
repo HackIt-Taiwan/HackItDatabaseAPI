@@ -7,6 +7,7 @@ import (
 	"github.com/HackIt-Taiwan/HackItDatabaseAPI/pkg/encryption"
 	"github.com/HackIt-Taiwan/HackItDatabaseAPI/pkg/utils"
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 func SaveData(c *gin.Context) {
@@ -34,8 +35,16 @@ func SaveData(c *gin.Context) {
 
 func GetDataByDateAndFilter(c *gin.Context) {
 	collection := c.Param("collection")
+	filter := bson.M{"status": "資料確認中"}
 
-	results, err := queries.GetDataByDateAndFilter(collection)
+	err := encryption.ProcessFieldsForHash(filter)
+	if err != nil {
+		fmt.Println("Error encrypting fields:", err)
+		utils.SimpleResponse(c, 500, "Encryption error", err.Error())
+		return
+	}
+
+	results, err := queries.GetDataByDateAndFilter(collection, filter)
 	if err != nil {
 		utils.SimpleResponse(c, 500, "Internal server error", err.Error())
 		return
