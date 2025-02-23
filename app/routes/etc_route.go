@@ -10,6 +10,7 @@ func EtcRoute(r *gin.RouterGroup) {
 
 	auth.POST("/create/:collection", controllers.SaveData)
 	auth.POST("/get/:collection", controllers.GetData)
+	auth.POST("/getbydateandstatus/:collection", controllers.GetData)
 	auth.POST("/edit/:collection", controllers.EditData)
 	auth.POST("/image/upload", controllers.EditData)
 }
