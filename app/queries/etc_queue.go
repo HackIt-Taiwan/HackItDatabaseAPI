@@ -44,7 +44,7 @@ func GetData(collection string, filter map[string]interface{}) ([]map[string]int
 }
 
 func GetDataByDateAndFilter(collection string) ([]map[string]interface{}, error) {
-	filter := bson.M{"status": true}
+	filter := bson.M{"status": "資料確認中"}
 
 	// Create options for sorting by date (assuming date field is named "date")
 	opts := options.Find().SetSort(bson.D{{Key: "completeAt", Value: -1}}) // -1 for descending, 1 for ascending
