@@ -35,7 +35,7 @@ func SaveData(c *gin.Context) {
 
 func GetDataByDateAndFilter(c *gin.Context) {
 	collection := c.Param("collection")
-	filter := bson.M{"status": "資料確認中", "completeAt": bson.M{"$exists": true}}
+	filter := bson.M{"status": "資料確認中"}
 
 	err := encryption.ProcessFieldsForHash(filter)
 	if err != nil {
