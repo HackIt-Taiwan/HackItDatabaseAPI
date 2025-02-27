@@ -33,6 +33,18 @@ func SaveData(c *gin.Context) {
 	utils.SimpleResponse(c, 201, "Successfully created new data", nil)
 }
 
+func GetAllData(c *gin.Context) {
+	collection := c.Param("collection")
+
+	results, err := queries.GetAllData(collection)
+	if err != nil {
+		utils.SimpleResponse(c, 500, "Internal server error", err.Error())
+		return
+	}
+
+	utils.SimpleResponse(c, 200, "Successfully acquired data", results)
+}
+
 func GetData(c *gin.Context) {
 	var requestData map[string]interface{}
 	collection := c.Param("collection")
