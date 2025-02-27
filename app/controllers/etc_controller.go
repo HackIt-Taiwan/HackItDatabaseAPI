@@ -33,26 +33,6 @@ func SaveData(c *gin.Context) {
 	utils.SimpleResponse(c, 201, "Successfully created new data", nil)
 }
 
-func GetDataByDateAndFilter(c *gin.Context) {
-	collection := c.Param("collection")
-	filter := bson.M{"status": "資料確認中"}
-
-	err := encryption.ProcessFieldsForHash(filter)
-	if err != nil {
-		fmt.Println("Error encrypting fields:", err)
-		utils.SimpleResponse(c, 500, "Encryption error", err.Error())
-		return
-	}
-
-	results, err := queries.GetDataByDateAndFilter(collection, filter)
-	if err != nil {
-		utils.SimpleResponse(c, 500, "Internal server error", err.Error())
-		return
-	}
-
-	utils.SimpleResponse(c, 200, "Successfully acquired data", results)
-}
-
 func GetData(c *gin.Context) {
 	var requestData map[string]interface{}
 	collection := c.Param("collection")
