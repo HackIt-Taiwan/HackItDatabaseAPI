@@ -7,7 +7,6 @@ import (
 	"github.com/HackIt-Taiwan/HackItDatabaseAPI/pkg/encryption"
 	"github.com/HackIt-Taiwan/HackItDatabaseAPI/pkg/utils"
 	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/bson"
 )
 
 func SaveData(c *gin.Context) {
