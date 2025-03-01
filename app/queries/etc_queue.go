@@ -42,12 +42,8 @@ func GetData(collection string, filter map[string]interface{}) ([]map[string]int
 	return results, nil
 }
 
-func GetAllData(collection string) ([]map[string]interface{}, error) {
+func GetAllData(collection string, filter map[string]interface{}) ([]map[string]interface{}, error) {
 	var results []map[string]interface{}
-
-	filter := bson.M{
-		"status": bson.M{"$in": []string{"已拒絕", "已接受", "資料確認中"}},
-	}
 
 	cursor, err := database.GetCollection(collection).Find(context.Background(), filter)
 	if err != nil {
