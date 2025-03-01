@@ -39,6 +39,9 @@ func GetAllData(c *gin.Context) {
 		"status": map[string]interface{}{
 			"$in": []string{"已拒絕", "已接受", "資料確認中"},
 		},
+		"ignore_encryption": map[string]interface{}{
+			"status": true,
+		},
 	}
 
 	err := encryption.ProcessFieldsForHash(filter)
