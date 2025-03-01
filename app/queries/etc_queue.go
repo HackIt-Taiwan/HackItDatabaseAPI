@@ -42,33 +42,6 @@ func GetData(collection string, filter map[string]interface{}) ([]map[string]int
 	return results, nil
 }
 
-func GetAllData(collection string, filter map[string]interface{}) ([]map[string]interface{}, error) {
-	var results []map[string]interface{}
-
-	cursor, err := database.GetCollection(collection).Find(context.Background(), filter)
-	if err != nil {
-		return nil, err
-	}
-	defer cursor.Close(context.Background())
-
-	for cursor.Next(context.Background()) {
-		var result map[string]interface{}
-		if err := cursor.Decode(&result); err != nil {
-			return nil, err
-		}
-		if err := encryption.DecryptFieldsByConfig(result); err != nil {
-			continue
-		}
-		results = append(results, result)
-	}
-
-	if err := cursor.Err(); err != nil {
-		return nil, err
-	}
-
-	return results, nil
-}
-
 func UpdateDataByID(collection string, id interface{}, newData map[string]interface{}) error {
 	delete(newData, "_id")
 

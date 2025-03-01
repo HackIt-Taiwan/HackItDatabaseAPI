@@ -36,8 +36,10 @@ func SaveData(c *gin.Context) {
 func GetAllData(c *gin.Context) {
 	collection := c.Param("collection")
 
-	filter := bson.M{
-		"status": bson.M{"$in": []string{"已拒絕", "已接受", "資料確認中"}},
+	filter := map[string]interface{}{
+		"status": map[string]interface{}{
+			"$in": []string{"已拒絕", "已接受", "資料確認中"},
+		},
 	}
 
 	err := encryption.ProcessFieldsForHash(filter)
@@ -47,7 +49,7 @@ func GetAllData(c *gin.Context) {
 		return
 	}
 
-	results, err := queries.GetAllData(collection, filter)
+	results, err := queries.GetData(collection, filter)
 	if err != nil {
 		utils.SimpleResponse(c, 500, "Internal server error", err.Error())
 		return
