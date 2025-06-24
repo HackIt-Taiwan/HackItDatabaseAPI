@@ -144,14 +144,45 @@ SERVICE_HOST=0.0.0.0
 SERVICE_PORT=8001
 ```
 
-### Client Usage
+### Enhanced Client Usage
 ```python
 from database_client import DatabaseClient
 
-client = DatabaseClient(
-    base_url="http://localhost:8001",
-    api_secret_key="your-secret-key"
-)
+# Basic usage
+async with DatabaseClient("http://localhost:8001", "your-secret-key") as client:
+    # Create user with enhanced profile
+    user_data = {
+        "user_id": 123456789,
+        "guild_id": 987654321,
+        "real_name": "John Doe",
+        "email": "john@example.com",
+        "bio": "Full-stack developer from Taiwan",
+        "location": "Taipei",
+        "github_username": "johndoe",
+        "linkedin_url": "https://linkedin.com/in/johndoe",
+        "website": "https://johndoe.dev",
+        "tags": ["developer", "python", "javascript"]
+    }
+    
+    # Create and manage user
+    user = await client.create_user(user_data)
+    user_id = user["data"]["id"]
+    
+    # Advanced operations
+    await client.add_user_tag(user_id, "hackathon-winner")
+    await client.update_user_login(user_id)
+    
+    # Advanced search
+    developers = await client.query_users({
+        "tag": "developer",
+        "location": "Taipei",
+        "is_active": True,
+        "limit": 10
+    })
+    
+    # Analytics
+    stats = await client.get_user_statistics()
+    print(f"Platform has {stats['data']['total_users']} users")
 ```
 
 ## 🔄 Integration Examples
