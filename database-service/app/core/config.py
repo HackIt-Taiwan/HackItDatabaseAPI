@@ -101,6 +101,28 @@ class DatabaseSettings(BaseSettings):
             raise ValueError(f"Log format must be one of {allowed_formats}")
         return v.upper()
     
+    @validator('ALLOWED_ORIGINS', pre=True)
+    def parse_allowed_origins(cls, v):
+        """Parse ALLOWED_ORIGINS from string or list."""
+        if isinstance(v, str):
+            # Handle comma-separated string from environment variables
+            return [origin.strip() for origin in v.split(',') if origin.strip()]
+        elif isinstance(v, list):
+            return v
+        else:
+            raise ValueError("ALLOWED_ORIGINS must be a string or list")
+    
+    @validator('ALLOWED_HOSTS', pre=True)
+    def parse_allowed_hosts(cls, v):
+        """Parse ALLOWED_HOSTS from string or list."""
+        if isinstance(v, str):
+            # Handle comma-separated string from environment variables
+            return [host.strip() for host in v.split(',') if host.strip()]
+        elif isinstance(v, list):
+            return v
+        else:
+            raise ValueError("ALLOWED_HOSTS must be a string or list")
+    
     def is_production(self) -> bool:
         """Check if running in production environment."""
         return self.ENVIRONMENT == 'production'
