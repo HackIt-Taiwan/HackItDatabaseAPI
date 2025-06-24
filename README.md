@@ -263,7 +263,47 @@ async def test_get_user():
 
 ## 🚀 Deployment
 
-### Docker Deployment
+### Coolify Deployment (推薦)
+
+本專案已針對 Coolify 部署進行優化，提供一鍵部署體驗：
+
+```bash
+# 準備部署
+make coolify-prepare
+
+# 檢查環境變數
+make coolify-env-check
+```
+
+**Coolify 部署特點：**
+- ✅ 自動 SSL 憑證配置
+- ✅ 負載平衡和健康檢查
+- ✅ 自動重啟和監控
+- ✅ 簡化的環境變數管理
+- ✅ Git 自動部署
+
+**詳細部署指南：** [COOLIFY_DEPLOYMENT.md](./COOLIFY_DEPLOYMENT.md)
+
+### Docker Compose (本地開發)
+
+針對 Coolify 部署，我們已將 MongoDB 和 Redis 移至外部服務：
+
+```yaml
+version: '3.8'
+services:
+  database-service:
+    build: ./database-service
+    ports:
+      - "8001:8001"
+    environment:
+      - MONGODB_URI=${MONGODB_URI}
+      - MONGODB_DATABASE=${MONGODB_DATABASE}
+      - API_SECRET_KEY=${API_SECRET_KEY}
+      - ENVIRONMENT=${ENVIRONMENT:-production}
+      # ... 更多環境變數
+```
+
+### 傳統 Docker Deployment
 ```dockerfile
 # Dockerfile for database-service
 FROM python:3.11-slim
@@ -275,32 +315,12 @@ EXPOSE 8001
 CMD ["python", "main.py"]
 ```
 
-### Docker Compose
-```yaml
-version: '3.8'
-services:
-  database-service:
-    build: ./database-service
-    ports:
-      - "8001:8001"
-    environment:
-      - MONGODB_URI=mongodb://mongo:27017/
-      - MONGODB_DATABASE=hackit_db
-    depends_on:
-      - mongo
-  
-  mongo:
-    image: mongo:7
-    ports:
-      - "27017:27017"
-```
-
 ### Production Considerations
-- Use environment variables for secrets
-- Enable HTTPS in production
-- Implement rate limiting
-- Set up monitoring and alerting
-- Use a reverse proxy (nginx/traefik)
+- **外部資料庫**: 使用 MongoDB Atlas 或其他管理服務
+- **安全性**: 強制 HTTPS 和 HMAC 認證
+- **監控**: 內建健康檢查和統計 API
+- **擴展性**: 支援負載平衡和多實例部署
+- **環境分離**: 開發/測試/生產環境隔離
 
 ## 🔮 Roadmap
 
