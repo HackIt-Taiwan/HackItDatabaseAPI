@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  database-service:
+    build: 
+      context: ./database-service
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8001"
+    environment:
+      - MONGODB_URI=mongodb://mongo:27017/
+      - MONGODB_DATABASE=hackit_db
+      - API_SECRET_KEY=${API_SECRET_KEY:-your-secret-key-here}
+      - SERVICE_HOST=0.0.0.0
+      - SERVICE_PORT=8001
+    depends_on:
+      - mongo
+    restart: unless-stopped
+    networks:
+      - hackit-network
+
+  mongo:
+    image: mongo:7
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_DATABASE=hackit_db
+    volumes:
+      - mongo_data:/data/db
+    restart: unless-stopped
+    networks:
+      - hackit-network
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    networks:
+      - hackit-network
+    command: redis-server --appendonly yes
+
+volumes:
+  mongo_data:
+  redis_data:
+
+networks:
+  hackit-network:
+    driver: bridge 
