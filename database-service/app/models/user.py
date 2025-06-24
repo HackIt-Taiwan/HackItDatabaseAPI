@@ -39,18 +39,19 @@ class RegisteredUser(BaseModel):
         'collection': 'registered_users',
         'indexes': [
             ('user_id', 'guild_id'),  # Compound index for Discord lookups
-            'email',                   # Index for email lookups
             'is_active',              # Index for filtering active users
             'registered_at',          # Index for date-based queries
             'tags',                   # Index for tag-based searches
             {
                 'fields': ['email'],
                 'unique': True,
-                'sparse': True
+                'sparse': True,
+                'name': 'email_unique_idx'  # Explicit name to avoid conflicts
             },  # Unique email constraint
             {
                 'fields': ['user_id', 'guild_id'],
-                'unique': True
+                'unique': True,
+                'name': 'discord_unique_idx'  # Explicit name to avoid conflicts
             }  # Unique Discord user per guild
         ],
         'ordering': ['-registered_at']  # Default ordering by registration date
