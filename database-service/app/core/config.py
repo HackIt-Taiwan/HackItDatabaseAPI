@@ -63,6 +63,14 @@ class DatabaseSettings(BaseSettings):
     CACHE_TTL_SECONDS: int = Field(default=300, description="Cache TTL in seconds")
     MAX_CONNECTIONS: int = Field(default=100, description="Maximum concurrent connections")
     
+    # Avatar settings
+    AVATAR_CACHE_ENABLED: bool = Field(default=True, description="Enable avatar caching")
+    AVATAR_CACHE_TTL_SECONDS: int = Field(default=3600, description="Avatar cache TTL in seconds (1 hour)")
+    AVATAR_MAX_FILE_SIZE_MB: int = Field(default=5, description="Maximum avatar file size in MB")
+    AVATAR_CACHE_CONTROL_MAX_AGE: int = Field(default=86400, description="HTTP Cache-Control max-age for avatars (1 day)")
+    AVATAR_ENABLE_ETAG: bool = Field(default=True, description="Enable ETag headers for avatars")
+    AVATAR_ENABLE_LAST_MODIFIED: bool = Field(default=True, description="Enable Last-Modified headers for avatars")
+    
     @field_validator('API_SECRET_KEY')
     @classmethod
     def validate_secret_key(cls, v):

@@ -8,14 +8,15 @@
 4. [Error Handling](#error-handling)
 5. [Rate Limiting](#rate-limiting)
 6. [User Management API](#user-management-api)
-7. [User Status Management](#user-status-management)
-8. [Tag Management](#tag-management)
-9. [Search and Query Operations](#search-and-query-operations)
-10. [Analytics and Statistics](#analytics-and-statistics)
-11. [Bulk Operations](#bulk-operations)
-12. [System Operations](#system-operations)
-13. [Client Library Usage](#client-library-usage)
-14. [Examples and Use Cases](#examples-and-use-cases)
+7. [Avatar Management API](#avatar-management-api)
+8. [User Status Management](#user-status-management)
+9. [Tag Management](#tag-management)
+10. [Search and Query Operations](#search-and-query-operations)
+11. [Analytics and Statistics](#analytics-and-statistics)
+12. [Bulk Operations](#bulk-operations)
+13. [System Operations](#system-operations)
+14. [Client Library Usage](#client-library-usage)
+15. [Examples and Use Cases](#examples-and-use-cases)
 
 ---
 
@@ -387,6 +388,208 @@ Permanently delete a user account.
     "timestamp": "2024-01-15T10:30:00.000Z"
 }
 ```
+
+---
+
+## Avatar Management API
+
+### Overview
+
+The Avatar Management API provides optimized access to user avatars with advanced caching and HTTP optimization features. This API is designed to minimize database load while providing fast, efficient access to user profile images.
+
+### Features
+
+- **🚀 High Performance**: In-memory caching with configurable TTL
+- **🔄 HTTP Caching**: ETag and Last-Modified headers for browser caching
+- **📊 Smart Optimization**: Automatic content type detection
+- **🛡️ Security**: Built-in security headers and CORS support
+- **📈 Analytics**: Cache statistics and monitoring
+- **⚡ Conditional Requests**: HTTP 304 Not Modified support
+
+### 1. Get User Avatar
+
+Retrieve a user's avatar image with optimized caching and HTTP headers.
+
+**Endpoint**: `GET /users/{user_id}/avatar`
+
+**Parameters**:
+- `user_id` (string): MongoDB ObjectId
+
+**Headers** (Optional for conditional requests):
+- `If-None-Match`: ETag value for cache validation
+- `If-Modified-Since`: Date for modification checking
+
+**Example Request**:
+```http
+GET /users/507f1f77bcf86cd799439011/avatar HTTP/1.1
+Host: api.hackit.tw
+If-None-Match: "d41d8cd98f00b204e9800998ecf8427e"
+If-Modified-Since: Mon, 15 Jan 2024 10:30:00 GMT
+```
+
+**Success Response**: `200 OK`
+```http
+HTTP/1.1 200 OK
+Content-Type: image/jpeg
+Content-Length: 15234
+Cache-Control: public, max-age=86400, immutable
+ETag: "d41d8cd98f00b204e9800998ecf8427e"
+Last-Modified: Mon, 15 Jan 2024 10:30:00 GMT
+X-Content-Type-Options: nosniff
+X-Frame-Options: DENY
+
+[Binary image data]
+```
+
+**Not Modified Response**: `304 Not Modified`
+```http
+HTTP/1.1 304 Not Modified
+ETag: "d41d8cd98f00b204e9800998ecf8427e"
+Last-Modified: Mon, 15 Jan 2024 10:30:00 GMT
+Cache-Control: public, max-age=86400, immutable
+```
+
+**Error Responses**:
+- `404 Not Found`: Avatar not found for the user
+- `413 Payload Too Large`: Avatar exceeds size limit
+- `422 Unprocessable Entity`: Invalid avatar data
+- `500 Internal Server Error`: Server-side error
+
+### Supported Image Formats
+
+The API automatically detects and serves the following image formats:
+- **JPEG** (`image/jpeg`)
+- **PNG** (`image/png`)
+- **GIF** (`image/gif`)
+- **WebP** (`image/webp`)
+- **ICO** (`image/x-icon`)
+
+### 2. Clear User Avatar Cache
+
+Clear cached avatar data for a specific user (useful after avatar updates).
+
+**Endpoint**: `DELETE /users/{user_id}/avatar/cache`
+
+**Parameters**:
+- `user_id` (string): MongoDB ObjectId
+
+**Success Response**: `200 OK`
+```json
+{
+    "success": true,
+    "message": "Avatar cache cleared for user 507f1f77bcf86cd799439011",
+    "timestamp": "2024-01-15T10:30:00.000Z"
+}
+```
+
+### 3. Get Avatar Cache Statistics
+
+Retrieve statistics about the avatar cache system.
+
+**Endpoint**: `GET /users/avatars/cache/stats`
+
+**Success Response**: `200 OK`
+```json
+{
+    "success": true,
+    "message": "Avatar cache statistics retrieved",
+    "data": {
+        "total_entries": 150,
+        "valid_entries": 142,
+        "expired_entries": 8,
+        "cache_enabled": true,
+        "cache_ttl_seconds": 3600
+    },
+    "timestamp": "2024-01-15T10:30:00.000Z"
+}
+```
+
+### 4. Clear All Avatar Cache
+
+Clear all cached avatar data (admin operation).
+
+**Endpoint**: `DELETE /users/avatars/cache`
+
+**Success Response**: `200 OK`
+```json
+{
+    "success": true,
+    "message": "All avatar cache cleared successfully",
+    "timestamp": "2024-01-15T10:30:00.000Z"
+}
+```
+
+### Caching Configuration
+
+The avatar system uses configurable caching settings via environment variables:
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `AVATAR_CACHE_ENABLED` | `true` | Enable/disable avatar caching |
+| `AVATAR_CACHE_TTL_SECONDS` | `3600` | Cache TTL (1 hour) |
+| `AVATAR_MAX_FILE_SIZE_MB` | `5` | Maximum avatar size |
+| `AVATAR_CACHE_CONTROL_MAX_AGE` | `86400` | HTTP cache max-age (1 day) |
+| `AVATAR_ENABLE_ETAG` | `true` | Enable ETag headers |
+| `AVATAR_ENABLE_LAST_MODIFIED` | `true` | Enable Last-Modified headers |
+
+### Usage Examples
+
+#### HTML Image Tag
+```html
+<img src="https://api.hackit.tw/users/507f1f77bcf86cd799439011/avatar" 
+     alt="User Avatar" 
+     width="64" 
+     height="64">
+```
+
+#### JavaScript Fetch with Caching
+```javascript
+async function getUserAvatar(userId) {
+    const response = await fetch(`/users/${userId}/avatar`, {
+        headers: {
+            'If-None-Match': localStorage.getItem(`avatar-etag-${userId}`)
+        }
+    });
+    
+    if (response.status === 304) {
+        // Use cached version
+        return localStorage.getItem(`avatar-data-${userId}`);
+    }
+    
+    if (response.ok) {
+        const etag = response.headers.get('ETag');
+        const blob = await response.blob();
+        
+        // Cache the avatar
+        localStorage.setItem(`avatar-etag-${userId}`, etag);
+        localStorage.setItem(`avatar-data-${userId}`, URL.createObjectURL(blob));
+        
+        return URL.createObjectURL(blob);
+    }
+    
+    throw new Error('Failed to load avatar');
+}
+```
+
+#### Curl Example
+```bash
+# Get avatar with cache headers
+curl -H "If-None-Match: \"d41d8cd98f00b204e9800998ecf8427e\"" \
+     -H "If-Modified-Since: Mon, 15 Jan 2024 10:30:00 GMT" \
+     https://api.hackit.tw/users/507f1f77bcf86cd799439011/avatar
+
+# Clear user avatar cache
+curl -X DELETE \
+     https://api.hackit.tw/users/507f1f77bcf86cd799439011/avatar/cache
+```
+
+### Performance Considerations
+
+1. **Browser Caching**: The API sets long cache headers (`max-age=86400`) for efficient browser caching
+2. **Conditional Requests**: Supports ETag and Last-Modified for 304 responses
+3. **In-Memory Cache**: Reduces database queries for frequently accessed avatars
+4. **Content-Type Detection**: Automatically detects image format for proper MIME type
+5. **Security Headers**: Includes security headers to prevent content type sniffing
 
 ---
 

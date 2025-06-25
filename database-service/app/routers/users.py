@@ -1,4 +1,5 @@
-from fastapi import APIRouter, HTTPException, status, Query, Path, Depends
+from fastapi import APIRouter, HTTPException, status, Query, Path, Depends, Header
+from fastapi.responses import Response
 from typing import List, Optional, Union
 from datetime import datetime
 
@@ -8,7 +9,9 @@ from app.schemas.user import (
     UserStatistics
 )
 from app.services.user_service import UserService
+from app.services.avatar_service import AvatarService
 from app.core.security import api_auth_dependency
+from app.core.config import settings
 import logging
 
 logger = logging.getLogger(__name__)
@@ -564,4 +567,142 @@ async def bulk_update_users(bulk_data: UserBulkUpdate):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Internal server error"
+        )
+
+# Avatar Operations
+
+@router.get("/{user_id}/avatar",
+            summary="Get user avatar",
+            description="Get user avatar image with optimized caching and HTTP headers")
+async def get_user_avatar(
+    user_id: str = Path(..., description="User MongoDB ObjectId"),
+    if_none_match: Optional[str] = Header(None, alias="If-None-Match"),
+    if_modified_since: Optional[str] = Header(None, alias="If-Modified-Since")
+):
+    """
+    Get user avatar with optimized HTTP caching.
+    
+    Supports:
+    - ETag validation for efficient caching
+    - Last-Modified header for conditional requests
+    - Automatic content type detection
+    - In-memory caching to reduce database load
+    - HTTP 304 Not Modified responses
+    """
+    try:
+        avatar_data, etag, last_modified, content_type = AvatarService.get_user_avatar(
+            user_id, if_none_match, if_modified_since
+        )
+        
+        # Return 304 Not Modified if no changes
+        if avatar_data is None:
+            response = Response(status_code=status.HTTP_304_NOT_MODIFIED)
+            if etag and settings.AVATAR_ENABLE_ETAG:
+                response.headers["ETag"] = f'"{etag}"'
+            if last_modified and settings.AVATAR_ENABLE_LAST_MODIFIED:
+                response.headers["Last-Modified"] = last_modified.strftime("%a, %d %b %Y %H:%M:%S GMT")
+            return response
+        
+        # Return avatar with optimized headers
+        response = Response(
+            content=avatar_data,
+            media_type=content_type or "image/jpeg",
+            status_code=status.HTTP_200_OK
+        )
+        
+        # Add caching headers for optimization
+        if settings.AVATAR_CACHE_CONTROL_MAX_AGE > 0:
+            response.headers["Cache-Control"] = f"public, max-age={settings.AVATAR_CACHE_CONTROL_MAX_AGE}, immutable"
+        
+        if etag and settings.AVATAR_ENABLE_ETAG:
+            response.headers["ETag"] = f'"{etag}"'
+        
+        if last_modified and settings.AVATAR_ENABLE_LAST_MODIFIED:
+            response.headers["Last-Modified"] = last_modified.strftime("%a, %d %b %Y %H:%M:%S GMT")
+        
+        # Add security headers
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "DENY"
+        
+        # Add CORS headers for cross-origin access
+        allowed_origins = settings.get_allowed_origins_list()
+        if allowed_origins:
+            response.headers["Access-Control-Allow-Origin"] = ", ".join(allowed_origins)
+        
+        logger.info(f"Successfully served avatar for user {user_id}")
+        return response
+        
+    except HTTPException as e:
+        if e.status_code == status.HTTP_404_NOT_FOUND:
+            # Return a placeholder or 404 for missing avatars
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Avatar not found"
+            )
+        raise
+    except Exception as e:
+        logger.error(f"Error in get_user_avatar endpoint: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to retrieve avatar"
+        )
+
+@router.delete("/{user_id}/avatar/cache",
+               response_model=APIResponse,
+               summary="Clear user avatar cache",
+               description="Clear cached avatar data for a specific user")
+async def clear_user_avatar_cache(
+    user_id: str = Path(..., description="User MongoDB ObjectId")
+):
+    """Clear avatar cache for a specific user."""
+    try:
+        AvatarService.invalidate_cache(user_id)
+        return create_response(
+            success=True,
+            message=f"Avatar cache cleared for user {user_id}"
+        )
+    except Exception as e:
+        logger.error(f"Error in clear_user_avatar_cache endpoint: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to clear cache"
+        )
+
+@router.get("/avatars/cache/stats",
+            response_model=APIResponse,
+            summary="Get avatar cache statistics",
+            description="Get statistics about the avatar cache system")
+async def get_avatar_cache_stats():
+    """Get avatar cache statistics."""
+    try:
+        stats = AvatarService.get_cache_stats()
+        return create_response(
+            success=True,
+            message="Avatar cache statistics retrieved",
+            data=stats
+        )
+    except Exception as e:
+        logger.error(f"Error in get_avatar_cache_stats endpoint: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to retrieve cache statistics"
+        )
+
+@router.delete("/avatars/cache",
+               response_model=APIResponse,
+               summary="Clear all avatar cache",
+               description="Clear all cached avatar data (admin operation)")
+async def clear_all_avatar_cache():
+    """Clear all avatar cache (admin operation)."""
+    try:
+        AvatarService.clear_cache()
+        return create_response(
+            success=True,
+            message="All avatar cache cleared successfully"
+        )
+    except Exception as e:
+        logger.error(f"Error in clear_all_avatar_cache endpoint: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to clear all cache"
         ) 

@@ -99,9 +99,21 @@ class UserService(BaseService):
                     logger.warning(f"Cannot update to existing email: {update_data['email']}")
                     return None
             
+            # Check if avatar is being updated
+            avatar_updated = 'avatar_base64' in update_data
+            
             # Update fields
             user.update_from_dict(update_data)
             user.save()
+            
+            # Clear avatar cache if avatar was updated
+            if avatar_updated:
+                try:
+                    from app.services.avatar_service import AvatarService
+                    AvatarService.invalidate_cache(user_object_id)
+                    logger.info(f"Avatar cache invalidated for user: {user_object_id}")
+                except Exception as cache_error:
+                    logger.warning(f"Failed to invalidate avatar cache for user {user_object_id}: {str(cache_error)}")
             
             logger.info(f"Updated user: {user.email}")
             return user
